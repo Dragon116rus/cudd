@@ -44,7 +44,7 @@ DdNode* getVerticalConj(int i,int k,int n)
 		else 
 			conj=Cudd_bddAnd(mgr,(nodes[j][i]),root);
 		Cudd_Ref(conj);
-		Cudd_Deref(root);
+		Cudd_RecursiveDeref(mgr,root);
 		root=conj;
 	}
 	return root;
@@ -58,8 +58,8 @@ DdNode* getVertical(int i,int n)
 		DdNode* verticalConj =getVerticalConj(i,k,n);
 		DdNode* tmp=Cudd_bddOr(mgr,verticalConj,root);
 		Cudd_Ref(tmp);
-		Cudd_Deref(verticalConj);
-		Cudd_Deref(root);
+		Cudd_RecursiveDeref(mgr,verticalConj);
+		Cudd_RecursiveDeref(mgr,root);
 		root=tmp;
 	}
 	return root;
@@ -76,7 +76,7 @@ DdNode* getGorizontalConj(int i,int k,int n)
 		else 
 			conj=Cudd_bddAnd(mgr,(nodes[i][j]),root);
 		Cudd_Ref(conj);
-		Cudd_Deref(root);
+		Cudd_RecursiveDeref(mgr,root);
 		root=conj;
 	}
 	return root;
@@ -91,11 +91,15 @@ DdNode* getGorizontal(int i,int n)
 		Cudd_Ref(gorizontalConj);
 		DdNode* tmp=Cudd_bddOr(mgr,gorizontalConj,root);
 		Cudd_Ref(tmp);
-		Cudd_Deref(gorizontalConj);
-		Cudd_Deref(root);
+		Cudd_RecursiveDeref(mgr,gorizontalConj);
+		Cudd_RecursiveDeref(mgr,root);
+		
 		root=tmp;
 	}
 	return root;
+}
+DdNode* getDiagonalNE(int i,int n) {
+
 }
 DdNode* buildBDD(int n) 
 {
@@ -113,20 +117,20 @@ DdNode* buildBDD(int n)
 		Cudd_Ref(diagonalNW);*/
 		DdNode* lines=Cudd_bddAnd(mgr,gorizontal,vertical);
 		Cudd_Ref(lines);
-		Cudd_Deref(gorizontal);
-		Cudd_Deref(vertical);
+		Cudd_RecursiveDeref(mgr,gorizontal);
+		Cudd_RecursiveDeref(mgr,vertical);
 		/*DdNode* diagonals=Cudd_bddAnd(mgr,diagonalNE,diagonalNW);
 		Cudd_Ref(diagonals);
-		Cudd_Deref(diagonalNE);
-		Cudd_Deref(diagonalNW);
+		Cudd_RecursiveDeref(mgr,diagonalNE);
+		Cudd_RecursiveDeref(mgr,diagonalNW);
 		DdNode* dotRoot=Cudd_bddAnd(mgr,lines,diagonals);
 		Cudd_Ref(dotRoot);
-		Cudd_Deref(lines);
-		Cudd_Deref(diagonals);*/
+		Cudd_RecursiveDeref(mgr,lines);
+		Cudd_RecursiveDeref(mgr,diagonals);*/
 		DdNode* tmp=Cudd_bddAnd(mgr,lines,root);//DdNode* tmp=Cudd_bddAnd(mgr,dotRoot,root);
 		Cudd_Ref(tmp);
-		Cudd_Deref(lines);//Cudd_Deref(dotRoot);
-		Cudd_Deref(root);
+		Cudd_RecursiveDeref(mgr,lines);//Cudd_RecursiveDeref(mgr,dotRoot);
+		Cudd_RecursiveDeref(mgr,root);
 		root=tmp;
 	}
 	return root;
