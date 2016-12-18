@@ -5,12 +5,12 @@
 #include "cudd.h"
 #include <iostream>
 #include <ctime>
+#include <fstream>
 #include <sstream>
 using namespace std;
 
 DdManager * mgr;
 DdNode ***nodes;
-DdNode **nodes1;
 int r=0;
 int n;
 void init() 
@@ -248,7 +248,7 @@ DdNode* buildBDD(int n)
 	DdNode** nodesToCon=new DdNode*[n];
 	for (int i = 0; i < n; i++)
 	{
-		
+
 
 		DdNode* vertical=getVertical(i,n);
 		DdNode* gorizontal=getGorizontal(i,n);
@@ -298,27 +298,30 @@ DdNode* buildBDD(int n)
 		Cudd_RecursiveDeref(mgr,root);
 		root=tmp;*/
 
-		
+
 	}
 	int m=n;
 	while (m!=1) {
-		start_time =  clock();
+
 		for (int j = 0; j < (m+1)/2; j++)
 		{
+			start_time =  clock();
 			int a=j;
 			int b=m-j-1;
 			if (a==b)
 				continue;
 			DdNode* tmp=Cudd_bddAnd(mgr,nodesToCon[a],nodesToCon[b]);
 			Cudd_Ref(tmp);
-			//Cudd_RecursiveDeref(mgr,nodesToCon[a]);
-			//Cudd_RecursiveDeref(mgr,nodesToCon[b]);
+			Cudd_RecursiveDeref(mgr,nodesToCon[a]);
+			Cudd_RecursiveDeref(mgr,nodesToCon[b]);
 			nodesToCon[a]=tmp;
+
+			end_time = clock(); // конечное время
+			search_time = end_time - start_time; 
+		//	cout<<"tmp:"<<search_time<<endl;
 		}
 		m=(m+1)/2;
-		end_time = clock(); // конечное время
-		search_time = end_time - start_time; 
-		cout<<"tmp:"<<search_time<<endl;
+
 	}
 	root=nodesToCon[0];
 	return root;
@@ -327,26 +330,43 @@ int main(int argc, char* argv[])
 {
 	stringstream ss; 
 
-	ss<<argv[1];
-	ss>>n;
-
+	//ss<<argv[1];
+	//ss>>n;
+	//cin>>n;
 	unsigned int start_time =  clock();
 
-	//cin>>n;
+	cin>>n;
 
 	init();
 	DdNode* root=buildBDD(n);
 
-
-
+	
 	unsigned int end_time = clock(); // конечное время
 	unsigned int search_time = end_time - start_time; 
-	cout<<search_time<<endl;
-
+//	cout<<"count:"<<Cudd_CountMinterm(mgr,root,n*n)<<endl<<endl;            
 	//Cudd_bddPrintCover1(mgr, root, root,n);
+//	cout<<"count:"<<Cudd_CountMinterm(mgr,root,n*n)<<endl<<endl; 
+	cout<<"time:"<<search_time<<"ms"<<endl;
 
+	FILE* f;
+//	ofstream fout("cudd_countOfSolves.txt");//= fopen("cudd_countOfSolves.txt", "w");
+//	Cudd_SetStdout(mgr, f);
+	//fout<<Cudd_CountPathsToNonZero(root);
+	//fout.close();
+	////fclose(f)
 
+	//f=fopen ("cudd_solves.txt" , "w");
+	//Cudd_SetStdout(mgr,f);
+	//Cudd_PrintMinterm(mgr,root);
+	//fclose(f);
 
+	//fout.open("cudd_finished.txt");
+	//fout << n;
+	//fout.close();
+//	DdNode* pseudoRoot=Cudd_bddAnd(mgr,Cudd_bddIthVar(mgr,n*n+1),root);
+//	DdNode * nodes[1]={pseudoRoot};
+////	Cudd_DumpDot(mgr,1,nodes,NULL,NULL,f);
+	
 
 	dispose();
 	return 0;
